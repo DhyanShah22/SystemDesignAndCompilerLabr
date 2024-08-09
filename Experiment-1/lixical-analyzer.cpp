@@ -80,7 +80,7 @@ void identifyTokens(const std::string& str) {
                 if (isSymbol(ch)) {
                     std::cout << ch << ": Symbol\n";
                 } else {
-                    std::cout << ch << ": Other\n"; // Print delimiter as other
+                    std::cout << ch << ": Other\n"; 
                 }
             }
         } else {
