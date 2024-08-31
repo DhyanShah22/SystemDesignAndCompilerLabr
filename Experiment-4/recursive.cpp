@@ -1,37 +1,31 @@
 #include <iostream>
 #include <string>
 #include <cctype>
-#include <algorithm> 
+#include <algorithm>
+
+using namespace std;
 
 class RecursiveDescentParser {
-    std::string input;
+    string input;
     int index;
 
 public:
-    RecursiveDescentParser(std::string str) : index(0) {
-        str.erase(std::remove_if(str.begin(), str.end(), ::isspace), str.end());
+    RecursiveDescentParser(string str) : index(0) {
+        str.erase(remove_if(str.begin(), str.end(), ::isspace), str.end());
         input = str;
     }
 
-    char peek() {
-        return index < input.size() ? input[index] : '\0';
-    }
-
-    char get() {
-        return input[index++];
-    }
-
     void match(char expected) {
-        if (peek() == expected) {
-            get();
+        if (index < input.size() && input[index] == expected) {
+            index++;
         } else {
-            throw std::runtime_error(std::string("Expected '") + expected + "', found '" + peek() + "'");
+            throw runtime_error(string("Expected '") + expected + "', found '" + (index < input.size() ? input[index] : '\0') + "'");
         }
     }
 
     int parseExpression() {
         int result = parseTerm();
-        while (peek() == '+') {
+        while (index < input.size() && input[index] == '+') {
             match('+');
             result += parseTerm();
         }
@@ -40,7 +34,7 @@ public:
 
     int parseTerm() {
         int result = parseFactor();
-        while (peek() == '*') {
+        while (index < input.size() && input[index] == '*') {
             match('*');
             result *= parseFactor();
         }
@@ -48,41 +42,41 @@ public:
     }
 
     int parseFactor() {
-        if (std::isdigit(peek())) {
+        if (index < input.size() && isdigit(input[index])) {
             return parseNumber();
-        } else if (peek() == '(') {
+        } else if (index < input.size() && input[index] == '(') {
             match('(');
             int result = parseExpression();
             match(')');
             return result;
         } else {
-            throw std::runtime_error(std::string("Unexpected character '") + peek() + "'");
+            throw runtime_error(string("Unexpected character '") + (index < input.size() ? input[index] : '\0') + "'");
         }
     }
 
     int parseNumber() {
         int start = index;
-        while (std::isdigit(peek())) get();
-        return std::stoi(input.substr(start, index - start));
+        while (index < input.size() && isdigit(input[index])) index++;
+        return stoi(input.substr(start, index - start));
     }
 
     void parse() {
         try {
             int result = parseExpression();
-            if (peek() != '\0') {
-                throw std::runtime_error(std::string("Unexpected character at end: '") + peek() + "'");
+            if (index < input.size()) {
+                throw runtime_error(string("Unexpected character at end: '") + input[index] + "'");
             }
-            std::cout << "Parsed successfully! Result: " << result << std::endl;
-        } catch (const std::runtime_error& e) {
-            std::cerr << "Parsing error: " << e.what() << std::endl;
+            cout << "Parsed successfully! Result: " << result << endl;
+        } catch (const runtime_error& e) {
+            cerr << "Parsing error: " << e.what() << endl;
         }
     }
 };
 
 int main() {
-    std::string input;
-    std::cout << "Enter an arithmetic expression: ";
-    std::getline(std::cin, input);
+    string input;
+    cout << "Enter an arithmetic expression: ";
+    getline(cin, input);
 
     RecursiveDescentParser parser(input);
     parser.parse();
