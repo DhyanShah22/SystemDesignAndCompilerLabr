@@ -48,7 +48,7 @@ void print_token(const char* token_name, const char* lexeme) {
 
 %%
 
-int main(int argc, char** argv) {
+int main() {
     yylex();
     printf("\nSummary:\n");
     printf("Keywords: %d\n", keyword_count);

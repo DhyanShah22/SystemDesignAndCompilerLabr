@@ -1,3 +1,4 @@
+%option noyywrap
 %{
 #include <stdio.h>
 
@@ -19,6 +20,3 @@ int main(void) {
     return 0;
 }
 
-int yywrap(void) {
-    return 1;
-}
