@@ -16,7 +16,7 @@ int main() {
     cin >> n;
 
     cout << "Enter the production rules (e.g., S=abAB/bB):\n";
-    cin.ignore(); // To ignore the newline character after the integer input
+    cin.ignore(); 
     for (int i = 0; i < n; i++) {
         string production;
         getline(cin, production);
@@ -27,7 +27,6 @@ int main() {
     cout << "Enter the non-terminal to find the First and Follow sets: ";
     cin >> nonTerminal;
 
-    // Finding First set
     set<char> firstSet = findFirst(nonTerminal, productions);
     cout << "First(" << nonTerminal << ") = ";
     for (char c : firstSet) {
@@ -35,7 +34,6 @@ int main() {
     }
     cout << endl;
 
-    // Finding Follow set
     set<char> followSet = findFollow(nonTerminal, productions, firstSet);
     cout << "Follow(" << nonTerminal << ") = ";
     for (char c : followSet) {
@@ -51,26 +49,24 @@ set<char> findFirst(char nonTerminal, const vector<string>& productions) {
 
     for (const string& production : productions) {
         if (production[0] == nonTerminal) {
-            for (size_t i = 2; i < production.size(); i++) { // Skip non-terminal and '='
+            for (size_t i = 2; i < production.size(); i++) { 
                 char symbol = production[i];
 
-                if (!isupper(symbol)) { // Terminal
+                if (!isupper(symbol)) { 
                     firstSet.insert(symbol);
-                    break; // Only add the first terminal
+                    break; 
                 } else {
-                    // Recursion is eliminated; use a loop
                     set<char> tempFirstSet = findFirst(symbol, productions);
                     firstSet.insert(tempFirstSet.begin(), tempFirstSet.end());
 
                     if (tempFirstSet.find('e') == tempFirstSet.end()) {
-                        break; // Stop if epsilon not found
+                        break; 
                     }
                 }
             }
         }
     }
 
-    // Add epsilon to the First set if applicable
     for (const string& production : productions) {
         if (production[0] == nonTerminal && production.substr(2) == "e") {
             firstSet.insert('e');
@@ -84,36 +80,33 @@ set<char> findFollow(char nonTerminal, const vector<string>& productions, const 
     set<char> followSet;
 
     if (productions[0][0] == nonTerminal) {
-        followSet.insert('$'); // Start symbol follows $
+        followSet.insert('$'); 
     }
 
     bool found = true;
 
     while (found) {
-        found = false; // Reset flag for this iteration
+        found = false; 
 
         for (const string& production : productions) {
-            for (size_t j = 2; j < production.size(); j++) { // Skip non-terminal and '='
+            for (size_t j = 2; j < production.size(); j++) { 
                 if (production[j] == nonTerminal) {
-                    // Lookahead symbol
                     if (j + 1 < production.size()) {
                         char nextSymbol = production[j + 1];
 
-                        if (!isupper(nextSymbol)) { // If it's terminal
+                        if (!isupper(nextSymbol)) {
                             followSet.insert(nextSymbol);
-                        } else { // If it's non-terminal
+                        } else { 
                             set<char> tempFirstSet = findFirst(nextSymbol, productions);
                             followSet.insert(tempFirstSet.begin(), tempFirstSet.end());
 
-                            // Remove epsilon if present
                             if (tempFirstSet.find('e') != tempFirstSet.end()) {
-                                followSet.erase('e'); // Remove epsilon from follow set
-                                found = true; // Mark that we found a new follow
+                                followSet.erase('e'); 
+                                found = true; 
                             }
                         }
                     } else {
-                        // At the end of production
-                        found = true; // Flag for another pass
+                        found = true;
                         set<char> tempFollowSet = findFollow(production[0], productions, firstSet);
                         followSet.insert(tempFollowSet.begin(), tempFollowSet.end());
                     }
