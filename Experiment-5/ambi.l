@@ -1,11 +1,11 @@
 %{
-#include "parser.tab.h"  // Include the Bison-generated header for token definitions
+#include "parser.tab.h"
 #include <ctype.h>
 %}
 
-%% 
+%%
 
-[0-9]+ { yylval = atoi(yytext); return NUMBER; }  // Return NUMBER token
+[0-9]+ { yylval = atoi(yytext); return NUMBER; }
 [ \t]  ;  // Ignore whitespace
 \n     return 0;  // End of input on newline
 .      return yytext[0];  // Return individual characters (+, -, *, /, etc.)

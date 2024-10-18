@@ -73,25 +73,22 @@ factor:
         $$ = getVarValue($1);  // Fetch the variable value
     }
     | NUMBER { $$ = $1; }
-    | '-' factor %prec UMINUS { $$ = -$2; }  // Unary minus
-    | factor '^' factor { $$ = pow($1, $3); }  // Exponentiation
+    | '-' factor %prec UMINUS { $$ = -$2; }  
+    | factor '^' factor { $$ = pow($1, $3); }  
     ;
 
 %%
 
-// Main function to run the parser
 int main() {
     printf("Enter expressions (e.g., a = 3, b = 5, a + b):\n");
     yyparse();
     return 0;
 }
 
-// Error handling function
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
 
-// Function to get the value of a variable
 int getVarValue(char *name) {
     for (int i = 0; i < varCount; i++) {
         if (strcmp(vars[i].name, name) == 0) {
@@ -102,7 +99,6 @@ int getVarValue(char *name) {
     return 0;  // Default return value for undefined variables
 }
 
-// Function to set the value of a variable
 void setVarValue(char *name, int value) {
     for (int i = 0; i < varCount; i++) {
         if (strcmp(vars[i].name, name) == 0) {
@@ -110,7 +106,6 @@ void setVarValue(char *name, int value) {
             return;
         }
     }
-    // If the variable does not exist, create it
     if (varCount < MAXVARS) {
         strcpy(vars[varCount].name, name);
         vars[varCount].value = value;

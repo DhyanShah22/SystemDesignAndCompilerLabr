@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "parse.y"
+#line 2 "parse.y"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -503,7 +503,7 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    18,    18,    19,    20,    21,    31,    32,    33,    34
+       0,    19,    19,    20,    21,    22,    32,    33,    34,    35
 };
 #endif
 
@@ -1069,25 +1069,25 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* expression: expression '+' expression  */
-#line 18 "parse.y"
+#line 19 "parse.y"
                                       { yyval = yyvsp[-2] + yyvsp[0]; printf("%d + %d = %d\n", yyvsp[-2], yyvsp[0], yyval); }
 #line 1075 "parse.tab.c"
     break;
 
   case 3: /* expression: expression '-' expression  */
-#line 19 "parse.y"
+#line 20 "parse.y"
                                 { yyval = yyvsp[-2] - yyvsp[0]; printf("%d - %d = %d\n", yyvsp[-2], yyvsp[0], yyval); }
 #line 1081 "parse.tab.c"
     break;
 
   case 4: /* expression: expression '*' expression  */
-#line 20 "parse.y"
+#line 21 "parse.y"
                                 { yyval = yyvsp[-2] * yyvsp[0]; printf("%d * %d = %d\n", yyvsp[-2], yyvsp[0], yyval); }
 #line 1087 "parse.tab.c"
     break;
 
   case 5: /* expression: expression '/' expression  */
-#line 22 "parse.y"
+#line 23 "parse.y"
         {
             if (yyvsp[0] == 0) {
                 yyerror("divide by zero");
@@ -1101,25 +1101,25 @@ yyreduce:
     break;
 
   case 6: /* expression: expression '^' expression  */
-#line 31 "parse.y"
-                                    { yyval = pow(yyvsp[-2], yyvsp[0]); printf("%d ^ %d = %d\n", yyvsp[-2], yyvsp[0], yyval); }
+#line 32 "parse.y"
+                                { yyval = pow(yyvsp[-2], yyvsp[0]); printf("%d ^ %d = %d\n", yyvsp[-2], yyvsp[0], yyval); }
 #line 1107 "parse.tab.c"
     break;
 
   case 7: /* expression: '-' expression  */
-#line 32 "parse.y"
+#line 33 "parse.y"
                                   { yyval = -yyvsp[0]; printf("-%d = %d\n", yyvsp[0], yyval); }
 #line 1113 "parse.tab.c"
     break;
 
   case 8: /* expression: '(' expression ')'  */
-#line 33 "parse.y"
+#line 34 "parse.y"
                          { yyval = yyvsp[-1]; }
 #line 1119 "parse.tab.c"
     break;
 
   case 9: /* expression: NUMBER  */
-#line 34 "parse.y"
+#line 35 "parse.y"
              { yyval = yyvsp[0]; }
 #line 1125 "parse.tab.c"
     break;
@@ -1318,7 +1318,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 37 "parse.y"
+#line 38 "parse.y"
 
 int main() {
     printf("Enter expressions:\n");

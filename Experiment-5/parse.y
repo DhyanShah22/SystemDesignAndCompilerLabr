@@ -1,3 +1,4 @@
+// Save as parse.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +29,7 @@ expression: expression '+' expression { $$ = $1 + $3; printf("%d + %d = %d\n", $
                 printf("%d / %d = %d\n", $1, $3, $$);
             }
         }
-        | expression '^' expression { $$ = pow($1, $3); printf("%d ^ %d = %d\n", $1, $3, $$); }  
+    | expression '^' expression { $$ = pow($1, $3); printf("%d ^ %d = %d\n", $1, $3, $$); }  
     | '-' expression %prec UMINUS { $$ = -$2; printf("-%d = %d\n", $2, $$); }  
     | '(' expression ')' { $$ = $2; }
     | NUMBER { $$ = $1; }

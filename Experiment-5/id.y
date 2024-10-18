@@ -92,7 +92,6 @@ void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
 }
 
-// Function to get the value of a variable
 int getVarValue(char *name) {
     for (int i = 0; i < varCount; i++) {
         if (strcmp(vars[i].name, name) == 0) {
@@ -100,18 +99,16 @@ int getVarValue(char *name) {
         }
     }
     yyerror("undefined variable");
-    return 0;  // Default return value for undefined variables
+    return 0;  
 }
 
-// Function to set the value of a variable
 void setVarValue(char *name, int value) {
     for (int i = 0; i < varCount; i++) {
         if (strcmp(vars[i].name, name) == 0) {
-            vars[i].value = value;  // Update existing variable
+            vars[i].value = value;  
             return;
         }
     }
-    // If the variable does not exist, create it
     if (varCount < MAXVARS) {
         strcpy(vars[varCount].name, name);
         vars[varCount].value = value;

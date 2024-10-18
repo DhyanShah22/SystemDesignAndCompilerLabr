@@ -1,5 +1,5 @@
 %{
-#include "parser.tab.h"  // Include the Bison-generated header for token definitions
+#include "parse.tab.h"  // Include the Bison-generated header for token definitions
 #include <ctype.h>
 %}
 
