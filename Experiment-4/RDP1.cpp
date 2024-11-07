@@ -128,3 +128,6 @@ int main(){
     }
     
 }
+
+// i*(i+i) no 
+// i+i*i yes

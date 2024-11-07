@@ -1,82 +1,76 @@
 #include <iostream>
 #include <cctype>
 #include <cstring>
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace std;
+
+map<char, set<char>> firstSets;
+map<char, set<char>> followSets;
+vector<string> productions;
+set<char> visited;
 
 bool isNonTerminal(char c) {
     return isupper(c);
 }
 
-void addToSet(char set[], char element) {
-    if (strchr(set, element) == NULL) {
-        int length = strlen(set);
-        set[length] = element;
-        set[length + 1] = '\0';
-    }
+void addToSet(set<char>& s, char element) {
+    s.insert(element);
 }
 
-void findFirst(char first[], char productions[][10], char nonTerminal) {
-    for (int i = 0; i < 10; i++) {
-        if (productions[i][0] == nonTerminal) {
-            char* production = productions[i] + 2;  // Skip the non-terminal and the '='
+void findFirst(char nonTerminal) {
+    if (visited.count(nonTerminal)) return;
+    visited.insert(nonTerminal);
 
-            if (production[0] == '\0') continue; // Skip empty productions
+    for (const auto& production : productions) {
+        if (production[0] == nonTerminal) {
+            for (size_t i = 2; i < production.size(); i++) {
+                char symbol = production[i];
+                if (symbol == '/') continue;
 
-            for (int j = 0; production[j] != '\0'; j++) {
-                if (production[j] == '/') continue; // Handle alternatives
-                if (!isNonTerminal(production[j])) {
-                    // Add terminal to First set
-                    addToSet(first, production[j]);
+                if (!isNonTerminal(symbol)) {
+                    addToSet(firstSets[nonTerminal], symbol);
                     break;
                 } else {
-                    // Recursively find First of the next non-terminal
-                    char temp[10] = "";
-                    findFirst(temp, productions, production[j]);
-                    for (int k = 0; temp[k] != '\0'; k++) {
-                        if (temp[k] != 'e') { // Use 'e' to represent epsilon
-                            addToSet(first, temp[k]);
-                        }
+                    findFirst(symbol);
+                    for (char c : firstSets[symbol]) {
+                        if (c != 'e') addToSet(firstSets[nonTerminal], c);
                     }
-                    if (strchr(temp, 'e') == NULL) {
-                        break;
-                    }
+                    if (firstSets[symbol].count('e') == 0) break;
                 }
             }
         }
     }
 }
 
-void findFollow(char follow[], char productions[][10], char nonTerminal) {
-    if (nonTerminal == productions[0][0]) {
-        addToSet(follow, '$'); // Add '$' to the Follow of the start symbol
+void findFollow(char nonTerminal) {
+    if (followSets[nonTerminal].empty() && nonTerminal == productions[0][0]) {
+        addToSet(followSets[nonTerminal], '$');
     }
 
-    for (int i = 0; i < 10; i++) {
-        for (int j = 2; productions[i][j] != '\0'; j++) {
-            if (productions[i][j] == nonTerminal) {
-                if (productions[i][j + 1] != '\0') {
-                    char temp[10] = "";
-                    findFirst(temp, productions, productions[i][j + 1]);
-                    for (int k = 0; temp[k] != '\0'; k++) {
-                        if (temp[k] != 'e') { // Ignore epsilon in First set
-                            addToSet(follow, temp[k]);
-                        }
+    for (const auto& production : productions) {
+        for (size_t i = 2; i < production.size(); i++) {
+            if (production[i] == nonTerminal) {
+                size_t next = i + 1;
+                bool epsilonReached = true;
+                
+                while (epsilonReached && next < production.size()) {
+                    epsilonReached = false;
+                    char nextSymbol = production[next++];
+                    for (char c : firstSets[nextSymbol]) {
+                        if (c == 'e') epsilonReached = true;
+                        else addToSet(followSets[nonTerminal], c);
                     }
-                    if (strchr(temp, 'e') != NULL) {
-                        // Add Follow of the left-hand non-terminal if epsilon is present
-                        char tempFollow[10] = "";
-                        findFollow(tempFollow, productions, productions[i][0]);
-                        for (int k = 0; tempFollow[k] != '\0'; k++) {
-                            addToSet(follow, tempFollow[k]);
+                }
+
+                if (epsilonReached || next == production.size()) {
+                    if (production[0] != nonTerminal) {
+                        findFollow(production[0]);
+                        for (char c : followSets[production[0]]) {
+                            addToSet(followSets[nonTerminal], c);
                         }
-                    }
-                } else {
-                    // If at the end, add Follow of the LHS non-terminal
-                    char tempFollow[10] = "";
-                    findFollow(tempFollow, productions, productions[i][0]);
-                    for (int k = 0; tempFollow[k] != '\0'; k++) {
-                        addToSet(follow, tempFollow[k]);
                     }
                 }
             }
@@ -86,33 +80,47 @@ void findFollow(char follow[], char productions[][10], char nonTerminal) {
 
 int main() {
     int n;
-    char productions[10][10], nonTerminal[10], first[10] = "", follow[10] = "";
-
     cout << "Enter the number of production rules: ";
     cin >> n;
+    productions.resize(n);
 
-    cout << "Enter the production rules (e.g., S=abAB/bB):\n";
+    cout << "Enter the production rules (e.g., S=abA/B):\n";
     for (int i = 0; i < n; i++) {
         cin >> productions[i];
     }
 
+    char nonTerminal;
     cout << "Enter the non-terminal to find the First and Follow sets: ";
     cin >> nonTerminal;
 
-    findFirst(first, productions, nonTerminal[0]);
-    findFollow(follow, productions, nonTerminal[0]);
-
-    cout << "First(" << nonTerminal[0] << ") =  ";
-    for (int i = 0; first[i] != '\0'; i++) {
-        cout << first[i] << " ";
+    // Calculate First sets
+    for (const auto& production : productions) {
+        visited.clear();
+        findFirst(production[0]);
     }
-    cout << "\n";
 
-    cout << "Follow(" << nonTerminal[0] << ") =  ";
-    for (int i = 0; follow[i] != '\0'; i++) {
-        cout << follow[i] << " ";
+    // Calculate Follow sets
+    for (const auto& production : productions) {
+        findFollow(production[0]);
     }
-    cout << "\n";
+
+    // Print First set
+    cout << "First(" << nonTerminal << ") = ";
+    for (char c : firstSets[nonTerminal]) {
+        cout << c << " ";
+    }
+    cout << endl;
+
+    // Print Follow set
+    cout << "Follow(" << nonTerminal << ") = ";
+    for (char c : followSets[nonTerminal]) {
+        cout << c << " ";
+    }
+    cout << endl;
 
     return 0;
 }
+
+
+
+// S=AbC, A=aA, B=bB, C=c
