@@ -93,25 +93,21 @@ int main() {
     cout << "Enter the non-terminal to find the First and Follow sets: ";
     cin >> nonTerminal;
 
-    // Calculate First sets
     for (const auto& production : productions) {
         visited.clear();
         findFirst(production[0]);
     }
 
-    // Calculate Follow sets
     for (const auto& production : productions) {
         findFollow(production[0]);
     }
 
-    // Print First set
     cout << "First(" << nonTerminal << ") = ";
     for (char c : firstSets[nonTerminal]) {
         cout << c << " ";
     }
     cout << endl;
 
-    // Print Follow set
     cout << "Follow(" << nonTerminal << ") = ";
     for (char c : followSets[nonTerminal]) {
         cout << c << " ";
