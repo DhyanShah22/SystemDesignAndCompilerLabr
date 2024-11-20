@@ -19,4 +19,3 @@ int main(void) {
     printf("Newlines: %d\n", newlines);
     return 0;
 }
-

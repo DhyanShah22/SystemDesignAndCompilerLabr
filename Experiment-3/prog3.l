@@ -1,18 +1,21 @@
 %option noyywrap
+
 %{
     #include <stdio.h>
-    int total_tags;
-    
+    int total_tags = 0;
 %}
+
 %%
-"<"[^>]*">" {total_tags++; printf("HTML tag spotted %s\n",yytext);}
+"<"[^>]*">" {total_tags++; printf("HTML Tag spotted %s\n", yytext);}
 .           {}
 %%
 
-int main(){
-    yyin = fopen("sample.html","r");
+int main(int argc, char **argv){
+    FILE *infile = fopen(argv[1], "r");
+    if(!infile){
+        printf("Error opening file\n");
+    }
+    yyin = infile;
     yylex();
-    printf("Total HTML tags: %d",total_tags);
-    fclose(yyin);
-    return 0;
+    printf("Total HTML tags: %d\n", total_tags);
 }
