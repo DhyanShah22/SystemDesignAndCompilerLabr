@@ -1,122 +1,113 @@
 #include <iostream>
-#include <cctype>
-#include <cstring>
-#include <map>
-#include <set>
 #include <vector>
+#include <string>
+#include <set>
+#include <map>
+#include <cctype>
 
 using namespace std;
 
-map<char, set<char>> firstSets;
-map<char, set<char>> followSets;
 vector<string> productions;
-set<char> visited;
+map<char, set<char>> firstSets, followSets;
 
-bool isNonTerminal(char c) {
-    return isupper(c);
-}
-
-void addToSet(set<char>& s, char element) {
-    s.insert(element);
-}
-
-void findFirst(char nonTerminal) {
-    if (visited.count(nonTerminal)) return;
-    visited.insert(nonTerminal);
-
-    for (const auto& production : productions) {
-        if (production[0] == nonTerminal) {
-            for (size_t i = 2; i < production.size(); i++) {
-                char symbol = production[i];
-                if (symbol == '/') continue;
-
-                if (!isNonTerminal(symbol)) {
-                    addToSet(firstSets[nonTerminal], symbol);
-                    break;
-                } else {
-                    findFirst(symbol);
-                    for (char c : firstSets[symbol]) {
-                        if (c != 'e') addToSet(firstSets[nonTerminal], c);
-                    }
-                    if (firstSets[symbol].count('e') == 0) break;
-                }
-            }
-        }
-    }
-}
-
-void findFollow(char nonTerminal) {
-    if (followSets[nonTerminal].empty() && nonTerminal == productions[0][0]) {
-        addToSet(followSets[nonTerminal], '$');
-    }
-
-    for (const auto& production : productions) {
-        for (size_t i = 2; i < production.size(); i++) {
-            if (production[i] == nonTerminal) {
-                size_t next = i + 1;
-                bool epsilonReached = true;
-                
-                while (epsilonReached && next < production.size()) {
-                    epsilonReached = false;
-                    char nextSymbol = production[next++];
-                    for (char c : firstSets[nextSymbol]) {
-                        if (c == 'e') epsilonReached = true;
-                        else addToSet(followSets[nonTerminal], c);
-                    }
-                }
-
-                if (epsilonReached || next == production.size()) {
-                    if (production[0] != nonTerminal) {
-                        findFollow(production[0]);
-                        for (char c : followSets[production[0]]) {
-                            addToSet(followSets[nonTerminal], c);
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+void computeFirst(char c);
+void computeFollow(char c);
+void addFirstToFollow(const set<char>& source, set<char>& destination);
 
 int main() {
     int n;
-    cout << "Enter the number of production rules: ";
+    char startSymbol;
+
+    cout<<"Enter no of prods: "<<endl;
     cin >> n;
     productions.resize(n);
-
-    cout << "Enter the production rules (e.g., S=abA/B):\n";
+    cin.ignore();
+    
+    cout<<"Enter production: "<< endl;
     for (int i = 0; i < n; i++) {
-        cin >> productions[i];
+        getline(cin, productions[i]);
     }
 
-    char nonTerminal;
-    cout << "Enter the non-terminal to find the First and Follow sets: ";
-    cin >> nonTerminal;
-
-    for (const auto& production : productions) {
-        visited.clear();
-        findFirst(production[0]);
-    }
+    cout << "Enter the start symbol: "<<endl;
+    cin >> startSymbol;
 
     for (const auto& production : productions) {
-        findFollow(production[0]);
+        char nonTerminal = production[0];
+        computeFirst(nonTerminal);
     }
 
-    cout << "First(" << nonTerminal << ") = ";
-    for (char c : firstSets[nonTerminal]) {
-        cout << c << " ";
+    followSets[startSymbol].insert('$');
+    for (const auto& production : productions) {
+        char nonTerminal = production[0];
+        computeFollow(nonTerminal);
     }
-    cout << endl;
 
-    cout << "Follow(" << nonTerminal << ") = ";
-    for (char c : followSets[nonTerminal]) {
-        cout << c << " ";
+    for (const auto& [nonTerminal, firstSet] : firstSets) {
+        cout << "FIRST(" << nonTerminal << ") = { ";
+        for (char symbol : firstSet) {
+            cout << symbol << " ";
+        }
+        cout << "}\n";
     }
-    cout << endl;
+
+    for (const auto& [nonTerminal, followSet] : followSets) {
+        cout << "FOLLOW(" << nonTerminal << ") = { ";
+        for (char symbol : followSet) {
+            cout << symbol << " ";
+        }
+        cout << "}\n";
+    }
 
     return 0;
 }
 
+void computeFirst(char c) {
+    if (firstSets.count(c)) return;
 
+    set<char> result;
+    for (const auto& production : productions) {
+        if (production[0] == c) {
+            if (!isupper(production[2])) {
+                result.insert(production[2]);
+            } else {
+                char next = production[2];
+                computeFirst(next);
+                addFirstToFollow(firstSets[next], result);
+            }
+        }
+    }
+    firstSets[c] = result;
+}
 
-// S=AbC, A=aA, B=bB, C=c
+void computeFollow(char c) {
+    for (const auto& production : productions) {
+        for (size_t i = 2; i < production.length(); i++) {
+            if (production[i] == c) {
+                if (i + 1 < production.length()) {
+                    char next = production[i + 1];
+                    if (!isupper(next)) {
+                        followSets[c].insert(next);
+                    } else {
+                        addFirstToFollow(firstSets[next], followSets[c]);
+                        followSets[c].erase('$');
+                    }
+                }
+                if (i + 1 == production.length() || firstSets[production[i + 1]].count('$')) {
+                    char lhs = production[0];
+                    if (lhs != c) {
+                        computeFollow(lhs);
+                        addFirstToFollow(followSets[lhs], followSets[c]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void addFirstToFollow(const set<char>& source, set<char>& destination) {
+    for (char symbol : source) {
+        if (symbol != '$') {
+            destination.insert(symbol);
+        }
+    }
+}

@@ -363,9 +363,10 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[10] =
+static const flex_int16_t yy_accept[12] =
     {   0,
-        0,    0,    4,    2,    3,    2,    0,    1,    0
+        0,    0,    4,    2,    3,    2,    1,    1,    0,    1,
+        0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -374,9 +375,9 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    1,    1,    3,    4,    1,    5,    5,    5,
+        5,    5,    5,    5,    5,    5,    5,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    3,
-        1,    4,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -400,31 +401,33 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[5] =
+static const YY_CHAR yy_meta[6] =
     {   0,
-        1,    1,    1,    1
+        1,    1,    1,    1,    2
     } ;
 
-static const flex_int16_t yy_base[11] =
+static const flex_int16_t yy_base[14] =
     {   0,
-        0,    0,    8,    9,    9,    3,    2,    9,    9,    4
+        0,    0,    9,   10,   10,    0,    4,    0,    0,    0,
+       10,    5,    4
     } ;
 
-static const flex_int16_t yy_def[11] =
+static const flex_int16_t yy_def[14] =
     {   0,
-        9,    1,    9,    9,    9,   10,   10,    9,    0,    9
+       11,    1,   11,   11,   11,   12,   12,    7,   13,   13,
+        0,   11,   11
     } ;
 
-static const flex_int16_t yy_nxt[14] =
+static const flex_int16_t yy_nxt[16] =
     {   0,
-        4,    5,    6,    4,    7,    8,    8,    9,    3,    9,
-        9,    9,    9
+        4,    5,    6,    4,    7,   10,    8,    9,   11,    3,
+       11,   11,   11,   11,   11
     } ;
 
-static const flex_int16_t yy_chk[14] =
+static const flex_int16_t yy_chk[16] =
     {   0,
-        1,    1,    1,    1,   10,    7,    6,    3,    9,    9,
-        9,    9,    9
+        1,    1,    1,    1,    1,   13,   12,    7,    3,   11,
+       11,   11,   11,   11,   11
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -441,12 +444,13 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "prog3.l"
-#line 4 "prog3.l"
-    #include <stdio.h>
-    int total_tags = 0;
-#line 448 "lex.yy.c"
-#line 449 "lex.yy.c"
+#line 1 "posneg.l"
+#line 4 "posneg.l"
+#include <stdio.h>
+
+FILE *inputfile, *positivefile, *negativefile;
+#line 452 "lex.yy.c"
+#line 453 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -663,9 +667,10 @@ YY_DECL
 		}
 
 	{
-#line 8 "prog3.l"
+#line 9 "posneg.l"
 
-#line 668 "lex.yy.c"
+
+#line 673 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -692,13 +697,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 10 )
+				if ( yy_current_state >= 12 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 9 );
+		while ( yy_base[yy_current_state] != 10 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -723,22 +728,27 @@ do_action:	/* This label is used only to access EOF actions. */
 			goto yy_find_action;
 
 case 1:
-/* rule 1 can match eol */
 YY_RULE_SETUP
-#line 9 "prog3.l"
-{total_tags++; printf("HTML Tag spotted %s\n", yytext);}
+#line 11 "posneg.l"
+{
+    if (yytext[0] == '-') {
+        fprintf(negativefile, "%s\n", yytext); 
+    } else {
+        fprintf(positivefile, "%s\n", yytext); 
+    }
+}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 10 "prog3.l"
-{}
+#line 18 "posneg.l"
+; 
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 11 "prog3.l"
+#line 20 "posneg.l"
 ECHO;
 	YY_BREAK
-#line 741 "lex.yy.c"
+#line 751 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1035,7 +1045,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 10 )
+			if ( yy_current_state >= 12 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1063,11 +1073,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 10 )
+		if ( yy_current_state >= 12 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 9);
+	yy_is_jam = (yy_current_state == 11);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1743,16 +1753,31 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 11 "prog3.l"
+#line 20 "posneg.l"
 
 
-int main(int argc, char **argv){
-    FILE *infile = fopen(argv[1], "r");
-    if(!infile){
-        printf("Error opening file\n");
+int main() {
+    inputfile = fopen("input.txt", "r");
+    positivefile = fopen("positive_numbers.txt", "w");
+    negativefile = fopen("negative_numbers.txt", "w");
+
+    if (!inputfile) {
+        printf("Error opening input file.\n");
+        return 1;
     }
-    yyin = infile;
+    if (!positivefile || !negativefile) {
+        printf("Error opening output files.\n");
+        return 1;
+    }
+
+    yyin = inputfile;
     yylex();
-    printf("Total HTML tags: %d\n", total_tags);
+
+    fclose(inputfile);
+    fclose(positivefile);
+    fclose(negativefile);
+
+    printf("Processing complete. Check positive_numbers.txt and negative_numbers.txt for results.\n");
+    return 0;
 }
 

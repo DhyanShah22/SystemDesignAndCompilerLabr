@@ -31,10 +31,6 @@ bool isSymbol(char ch) {
            ch == ']' || ch == '{' || ch == '}' || ch == '&' || ch == '|';
 }
 
-bool isValidIdentifierChar(char ch) {
-    return std::isalnum(ch) || ch == '_';
-}
-
 bool isIdentifier(const std::string& str) {
     if (!std::isalpha(str[0]) && str[0] != '_') {
         return false;
